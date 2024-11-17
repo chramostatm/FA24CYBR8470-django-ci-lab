@@ -1,0 +1,32 @@
+# .github/workflows/ci.yml
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check Docker version
+      run: docker version
+      
+    - name: Build Docker Image
+      run: docker compose up -d --build
+
+    - name: Run Migrations
+      run: docker compose exec web python manage.py migrate
+
+    - name: Run Tests
+      run: docker compose exec web python manage.py test
+
+    - name: Shut down services
+      run: docker compose down
